@@ -8,13 +8,13 @@ class DB:
         self.conn = sqlite3.connect(dbname)
 
     def setup(self):
-        stmt = "CREATE TABLE IF NOT EXISTS INFO(locality text, city text, pincode integer, email text, modeofcontact text, req text, board text, standard integer, subjects text, Deal text, confirm text)"
+        stmt = "CREATE TABLE IF NOT EXISTS INFO(city text, locality text, pincode integer, modeofcontact text, email text, contact text, req text, board text, standard integer, subjects text, Deal text, confirm text)"
         self.conn.execute(stmt)
         self.conn.commit()
 
-    def add_item(self, Locality, City, Pincode, Email, Modeofcontact, Req, Board, Standard, Subjects, Deal, Confirm):
-        stmt = "INSERT INTO INFO (Locality, City, Pincode, Email, modeofcontact, Req, Board, Standard, Subjects, Deal, Confirm) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)"
-        args = (Locality, City, Pincode, Email, Modeofcontact, Req, Board, Standard, Subjects, Deal, Confirm)
+    def add_item(self, Locality, City, Pincode, Modeofcontact, Email, Contact,  Req, Board, Standard, Subjects, Deal, Confirm):
+        stmt = "INSERT INTO INFO (Locality, City, Pincode, Email, Contact, Modeofcontact, Req, Board, Standard, Subjects, Deal, Confirm) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        args = (Locality, City, Pincode, Modeofcontact, Email, Contact, Req, Board, Standard, Subjects, Deal, Confirm)
         self.conn.execute(stmt, args)
         self.conn.commit()
 

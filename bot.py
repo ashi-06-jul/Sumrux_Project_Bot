@@ -30,14 +30,14 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 
-START, LOCALITY, CITY, PINCODE, EMAIL, MODEOFCONTACT, REQ, BOARD, STANDARD, SUBJECTS, DEAL, CONFIRM, MOREDETAILS, FINALQUESTION = range(14)
+START, CITY, LOCALITY, PINCODE,  MODEOFCONTACT, EMAIL, CONTACT, REQ, BOARD, STANDARD, SUBJECTS, DEAL, CONFIRM, FINALQUESTION, CANCEL = range(15)
 
 MODE_OF_CONTACT_OPTIONS = ['Phone', 'Email']
 REQUIREMENTS_OPTIONS = ['Need', 'Have']
 BOARD_OPTIONS = ['CBSE', 'ICSE', 'State Board']
 DEAL_OPTIONS = ['Buy', 'Sell', 'Donate', 'Exchange']
 YES_NO_OPTIONS = ['Yes', 'No']
-
+#MessageHandler(Filters.regex(re.compile('BOARD_OPTIONS', re.IGNORECASE), callback)
 
 def start(update, context):
     """Send a message when the command /start is issued."""
@@ -55,32 +55,10 @@ def start(update, context):
 	Https://www.sumrux.com/know-backtostudies
 
 	Let us get you started. 
-	We need your locality to find the closest match. 
-	Please enter your locality.
+	We need your locality to find the closest match.
+Please enter your city.
 		''')
-    return LOCALITY
-
-
-def locality(update, context):
-    context.user_data['Locality'] = update.message.text
-    user = update.message.from_user
-    regex = r"^[a-z A-Z]+$"
-
-    if(re.search(regex, context.user_data['Locality'])):
-        logger.info("Locality of %s: %s", user.first_name, update.message.text)
-        update.message.reply_text(
-            'Please enter your city.',
-            reply_markup=ReplyKeyboardRemove())
-
-    else:
-        update.message.reply_text(
-            'Please enter a valid Locality Name', reply_markup=ReplyKeyboardRemove())
-        context.user_data['Locality'] = update.message.text
-        user = update.message.from_user
-        return LOCALITY
-
     return CITY
-
 
 def city(update, context):
     context.user_data['City'] = update.message.text
@@ -92,7 +70,7 @@ def city(update, context):
         update.message.reply_text(
             ''' 
 		We do need some more information to help you find a suitable bookmatch.
-		Please enter your pincode.''',
+		Please enter your locality.''',
             reply_markup=ReplyKeyboardRemove())
 
     else:
@@ -101,6 +79,26 @@ def city(update, context):
         user = update.message.from_user
         context.user_data['City'] = update.message.text
         return CITY
+
+    return LOCALITY
+
+def locality(update, context):
+    context.user_data['Locality'] = update.message.text
+    user = update.message.from_user
+    regex = r"^[a-z A-Z]+$"
+
+    if(re.search(regex, context.user_data['Locality'])):
+        logger.info("Locality of %s: %s", user.first_name, update.message.text)
+        update.message.reply_text(
+            'Please enter your pincode.',
+            reply_markup=ReplyKeyboardRemove())
+
+    else:
+        update.message.reply_text(
+            'Please enter a valid Locality Name', reply_markup=ReplyKeyboardRemove())
+        context.user_data['Locality'] = update.message.text
+        user = update.message.from_user
+        return LOCALITY
 
     return PINCODE
 
@@ -114,9 +112,8 @@ def pincode(update, context):
         logger.info("Pincode of %s: %s", user.first_name, update.message.text)
         update.message.reply_text(
             '''Thankyou, you have made it easier for us to find you a match.
-		Kindly enter your email ID (if you do not have one we shall contact you via phone)
-		Type "No" if you do not have Email ID.''',
-            reply_markup=ReplyKeyboardRemove())
+		Please enter valid preferred mode of contact Phone/Email''',
+            reply_markup=ReplyKeyboardMarkup([MODE_OF_CONTACT_OPTIONS], one_time_keyboard=True))
 
     else:
         update.message.reply_text(
@@ -125,8 +122,27 @@ def pincode(update, context):
         context.user_data['Pincode'] = update.message.text
         return PINCODE
 
-    return EMAIL
+    return MODEOFCONTACT
 
+def modeofcontact(update, context):
+    context.user_data['Modeofcontact'] = update.message.text
+    user = update.message.from_user
+    logger.info("Mode of contact is %s: %s",
+        user.first_name, update.message.text)
+        
+    if(context.user_data['Modeofcontact']=="Email"):
+        update.message.reply_text(
+        'Please enter your Email Id', reply_markup=ReplyKeyboardRemove())
+        return EMAIL
+    elif(context.user_data['Modeofcontact']=="Phone"):
+        update.message.reply_text(
+        'Please enter your Phone Number', reply_markup=ReplyKeyboardRemove())
+        return CONTACT
+    else:
+        update.message.reply_text('Please enter valid preferred mode of contact Phone/Email',
+reply_markup=ReplyKeyboardRemove([MODE_OF_CONTACT_OPTIONS], one_time_keyboard=True))
+        return MODEOFCONTACT
+  
 
 def email(update, context):
     context.user_data['Email'] = update.message.text
@@ -134,47 +150,37 @@ def email(update, context):
     regex = r'^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
 
     if(re.search(regex, context.user_data['Email'])):
+        context.user_data['Contact'] = "Not Provided"
+        user = update.message.from_user
         logger.info("Email of %s: %s", user.first_name, update.message.text)
-        reply_keyboard = [MODE_OF_CONTACT_OPTIONS]
-        update.message.reply_text('Please enter your preferred Mode Of Contact Phone/Email',
-                                  reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-        return MODEOFCONTACT
-
-    elif(context.user_data['Email'] == "No"):
         reply_keyboard = [REQUIREMENTS_OPTIONS]
-        update.message.reply_text(
-            '''No problem we will contact you over phone. 
-			Do you need books or have books to sell/exchange/donate. 
-			Choose need or have''',
-            reply_markup=ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True))
-        context.user_data['Modeofcontact'] = "No Email"
-        context.user_data['Modeofcontact'] = "Phone"
+        update.message.reply_text('Do you need or have a book',
+            reply_markup=ReplyKeyboardMarkup([REQUIREMENTS_OPTIONS], one_time_keyboard=True))
         return REQ
 
     else:
         update.message.reply_text(
             'Please enter a valid Email Id', reply_markup=ReplyKeyboardRemove())
-        user = update.message.from_user
-        context.user_data['Email'] = update.message.text
         return EMAIL
 
-
-def modeofcontact(update, context):
-    context.user_data['Modeofcontact'] = update.message.text
+def contact(update, context):
+    context.user_data['Contact'] = update.message.text
     user = update.message.from_user
-
-    if(context.user_data['Modeofcontact'] in MODE_OF_CONTACT_OPTIONS):
-        logger.info("Mode of contact is %s: %s",
-                    user.first_name, update.message.text)
-        update.message.reply_text(
-            'Do you need books or have books to sell/donate/exchange?',
+    regex = r'(0/91)?[7-9][0-9]{9}'
+    if(re.search(regex, context.user_data['Contact'])):
+        context.user_data['Email'] = "Not Provided"
+        user = update.message.from_user
+        logger.info("Contact of %s: %s", user.first_name, update.message.text)
+        reply_keyboard = [REQUIREMENTS_OPTIONS]
+        update.message.reply_text('Do you need or have a book',
             reply_markup=ReplyKeyboardMarkup([REQUIREMENTS_OPTIONS], one_time_keyboard=True))
         return REQ
 
     else:
-        update.message.reply_text('Please enter valid preferred mode of contact Phone/Email',
-                                  reply_markup=ReplyKeyboardRemove([MODE_OF_CONTACT_OPTIONS], one_time_keyboard=True))
-        return MODEOFCONTACT
+        update.message.reply_text(
+            'Please enter a valid Phone Number', reply_markup=ReplyKeyboardRemove())
+        return CONTACT
+
 
 
 def req(update, context):
@@ -279,8 +285,9 @@ def deal(update, context):
 		Locality : {context.user_data["Locality"]}, 
 		City : {context.user_data["City"]}, 
 		Pincode : {context.user_data["Pincode"]}, 
-		Email : {context.user_data["Email"]}
-		Modeofcontact : {context.user_data["Modeofcontact"]}, 
+		Modeofcontact : {context.user_data["Modeofcontact"]},
+        Email : {context.user_data["Email"]},
+		Contact : {context.user_data["Contact"]}, 
 		REQ : {context.user_data["Req"]}, 
 		Board : {context.user_data["Board"]}, 
 		Standard : {context.user_data["Standard"]}, 
@@ -320,23 +327,10 @@ def confirm(update, context):
 
     else:
         user = update.message.from_user
-        update.message.reply_text(
-            f'''
-        Hello! {user.first_name} 
-        Welcome to Sumrux's book exchange campaign #BackToStudies 
-        Thank you for choosing us to help you.  
-        This is a free service by Sumrux for academic books during Covid-19 recovery. 
-        Let us know the details of the books you are looking for/the books you have. 
-        We will find the right people for your books and connect them to you. 
-        You have complete freedom to talk to them and finalize the deal. You can buy/sell/donate/exchange the books. 
-        To know how it works visit 
-        Https://www.sumrux.com/know-backtostudies
-
-        Let us get you started. 
-        We need your locality to find the closest match. 
-        Please enter your locality.
-            ''')
-        return LOCALITY
+        update.message.reply_text('''
+		Sorry we got it wrong would you like to enter  again options Yes or No''',
+                                  reply_markup=ReplyKeyboardMarkup([YES_NO_OPTIONS], one_time_keyboard=True))
+        return CANCEL
 
 
 def finalquestion(update, context):
@@ -366,7 +360,7 @@ def finalquestion(update, context):
         We need your locality to find the closest match. 
         Please enter your locality.
             ''')
-        return LOCALITY
+        return CITY
 
     else:
         update.message.reply_text(f'''{context.user_data['Moredetails']} :
@@ -381,11 +375,16 @@ def finalquestion(update, context):
     return ConversationHandler.END
 
 def cancel(update, context):
+    context.user_data['Confirm'] = update.message.text
     user = update.message.from_user
-    logger.info("User %s ended the conversation.", user.first_name)
-    update.message.reply_text('Bye! I hope we can talk again some day.',
-                              reply_markup=ReplyKeyboardRemove())
-
+    if context.user_data['Confirm'] == "Yes":  
+        logger.info("Confirmation of %s : %s",
+                    user.first_name, update.message.text)  
+        return FINALQUESTION
+    else:
+        user = update.message.from_user
+        update.message.reply_text('''
+		Sorry to see you go. In Case you change your mind please type @SumruxBot in telegram search''')
     return ConversationHandler.END
 
 
@@ -420,6 +419,8 @@ def main():
 
             EMAIL: [MessageHandler(Filters.text, email)],
 
+            CONTACT: [MessageHandler(Filters.text, contact)],
+
             MODEOFCONTACT: [MessageHandler(Filters.text, modeofcontact)],
 
             REQ: [MessageHandler(Filters.text, req)],
@@ -439,6 +440,7 @@ def main():
             CONFIRM: [MessageHandler(Filters.text, confirm)],
 
             FINALQUESTION: [MessageHandler(Filters.text, finalquestion)],
+            CANCEL: [MessageHandler(Filters.text, cancel)]
 
         },
 
