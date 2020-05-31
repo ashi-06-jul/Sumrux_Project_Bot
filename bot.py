@@ -282,8 +282,7 @@ def deal(update, context):
 		Email : {context.user_data["Email"]}
 		Modeofcontact : {context.user_data["Modeofcontact"]}, 
 		REQ : {context.user_data["Req"]}, 
-		Board : {context.user_data["Board"]},
-		Modeofcontact : {context.user_data["Modeofcontact"]}, 
+		Board : {context.user_data["Board"]}, 
 		Standard : {context.user_data["Standard"]}, 
 		Subjects : {context.user_data["Subjects"]}, 
 		Deal : {context.user_data["Deal"]}, 
