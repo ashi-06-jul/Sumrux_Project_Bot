@@ -166,7 +166,7 @@ def email(update, context):
 def contact(update, context):
     context.user_data['Contact'] = update.message.text
     user = update.message.from_user
-    regex = r'(0/91)?[6-9][0-9]{9}'
+    regex = r'^[6-9]\d{9}$'
     if(re.search(regex, context.user_data['Contact'])):
         context.user_data['Email'] = "Not Provided"
         user = update.message.from_user
