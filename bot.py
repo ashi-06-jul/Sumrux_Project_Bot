@@ -208,9 +208,8 @@ def req(update, context):
 def board(update, context):
     context.user_data['Board'] = update.message.text
     user = update.message.from_user
-
     if(context.user_data['Board']in BOARD_OPTIONS):
-        logger.info("Board is %s: %s", user.first_name, update.message.text)
+        logger.info("Board of %s: %s", user.first_name, update.message.text)
         update.message.reply_text(
             '''The Grade/class please. Enter a number 1 to 12''',
             reply_markup=ReplyKeyboardRemove())
@@ -277,7 +276,7 @@ def deal(update, context):
     user = update.message.from_user
 
     if(context.user_data['Deal'] in DEAL_OPTIONS):
-        logger.info("Deal is %s: %s", user.first_name, update.message.text)
+        logger.info("Deal of %s: %s", user.first_name, update.message.text)
         update.message.reply_text(
             f'''
 		We got all we need to find the contacts for your books. Displayed below are your details.
@@ -380,7 +379,27 @@ def cancel(update, context):
     if context.user_data['Confirm'] == "Yes":  
         logger.info("Confirmation of %s : %s",
                     user.first_name, update.message.text)  
-        return FINALQUESTION
+        ########################################################################
+        ############   ADD  context.user_data in the database here  ############
+        ########################################################################
+        user = update.message.from_user
+        update.message.reply_text(
+            f'''
+        Hello! {user.first_name} 
+        Welcome to Sumrux's book exchange campaign #BackToStudies 
+        Thank you for choosing us to help you.  
+        This is a free service by Sumrux for academic books during Covid-19 recovery. 
+        Let us know the details of the books you are looking for/the books you have. 
+        We will find the right people for your books and connect them to you. 
+        You have complete freedom to talk to them and finalize the deal. You can buy/sell/donate/exchange the books. 
+        To know how it works visit 
+        Https://www.sumrux.com/know-backtostudies
+
+        Let us get you started. 
+        We need your locality to find the closest match. 
+        Please enter your locality.
+            ''')
+        return CITY
     else:
         user = update.message.from_user
         update.message.reply_text('''
