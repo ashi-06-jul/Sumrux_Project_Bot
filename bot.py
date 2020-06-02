@@ -56,8 +56,8 @@ def start(update, context):
 
 	Let us get you started. 
 	We need your locality to find the closest match.
-Please enter your city.
-		''')
+    Please enter your city.
+	''')
     return CITY
 
 def city(update, context):
