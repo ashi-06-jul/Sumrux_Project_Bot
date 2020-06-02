@@ -314,14 +314,15 @@ def confirm(update, context):
     if context.user_data['Confirm'] == "Yes":
         logger.info("Confirmation of %s : %s",
                     user.first_name, update.message.text)
-
+        db = DB()
+        db.setup()
+        db.add_item(**context.user_data)
         update.message.reply_text(f'''
 		Your details have been confirmed and saved. We are nearing the end of our conversation. 
 		Since you are looking for books, you might also have a few from previous grades. 
 		If you share your details we can find you a student who might be in need of them!
 		Would you like to register more book requests?''',
                                   reply_markup=ReplyKeyboardMarkup([YES_NO_OPTIONS], one_time_keyboard=True))
-
         return FINALQUESTION
 
     else:
