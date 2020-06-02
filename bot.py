@@ -314,9 +314,7 @@ def confirm(update, context):
     if context.user_data['Confirm'] == "Yes":
         logger.info("Confirmation of %s : %s",
                     user.first_name, update.message.text)
-        db = DB()
-        db.setup()
-        db.add_item(**context.user_data)
+       
         update.message.reply_text(f'''
 		Your details have been confirmed and saved. We are nearing the end of our conversation. 
 		Since you are looking for books, you might also have a few from previous grades. 
@@ -343,6 +341,9 @@ def finalquestion(update, context):
         ########################################################################
         ############   ADD  context.user_data in the database here  ############
         ########################################################################
+        db = DB()
+        db.setup()
+        db.add_item(**context.user_data)
         user = update.message.from_user
         update.message.reply_text(
             f'''
@@ -363,6 +364,9 @@ def finalquestion(update, context):
         return CITY
 
     else:
+        db = DB()
+        db.setup()
+        db.add_item(**context.user_data)
         update.message.reply_text(f'''{context.user_data['Moredetails']} :
 			Well, that brings us to the end of our conversation. 
 			Thankyou for going green during this lockdown. 
